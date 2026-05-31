@@ -1,12 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+require('dotenv').config();
 const app = express();
 const cors= require('cors');
 app.use(cors());
 app.use(express.json());
-const port=3000;
+const port=process.env.PORT || 5000;
+const mongoUri = process.env.MONGO_URI;
 
-mongoose.connect('mongodb://localhost:27017/mern_app')
+mongoose.connect(mongoUri)
 .then(()=>{
     console.log('db connected successfully');
 })
@@ -78,5 +80,5 @@ app.delete('/todos/:id',async (req,res)=>{
 });
 
 app.listen(port,()=>{
-    console.log("port is running on the server!")
+    console.log(`port ${port} is running on the server!`)
 });

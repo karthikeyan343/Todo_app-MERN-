@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react';
 
 const Todo = () => {
-    const apiUrl = "http://localhost:3000";
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     let [title,setTitle] = useState("");
     let [description,setDesc] = useState("");
     let [todos,setTodos] = useState([]);
