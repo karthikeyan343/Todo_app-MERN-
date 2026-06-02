@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import ServerWakeMessage from './ServerWakeMessage';
 
 const Todo = () => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -8,6 +8,8 @@ const Todo = () => {
     let [todos,setTodos] = useState([]);
     let [error,setError] = useState("");
     let [msg,setMsg]  = useState("");
+    let [loading,setLoading] = useState(true);
+    let [saving,setSaving] = useState(false);
 
     let [editId,setEditId]= useState(-1);
     let [editTitle,setEdiTitle] = useState("");
@@ -23,6 +25,7 @@ const Todo = () => {
       setError("");
       console.log("clicked");
       if(title.trim() != '' && description.trim() != ''){
+        setSaving(true);
        fetch(apiUrl+"/todos",{
         method: "POST",
         headers:{
@@ -41,6 +44,7 @@ const Todo = () => {
         }}).catch((err)=>{
         console.log(err);
         setError("unable to create todo")})
+        .finally(() => setSaving(false))
       }
     };
     const handleEdit = (item)=>{
@@ -55,6 +59,7 @@ const Todo = () => {
        setError("");
       console.log("clicked");
       if(editTitle.trim() != '' && editDescription.trim() != ''){
+        setSaving(true);
        fetch(apiUrl+"/todos/"+editId,{
         method: "PUT",
         headers:{
@@ -83,6 +88,7 @@ const Todo = () => {
       }).catch((err)=>{
         console.log(err);
         setError("unable to create todo")})
+        .finally(() => setSaving(false))
       }
     };
 
@@ -95,12 +101,32 @@ const Todo = () => {
           })}
         };
 
-    const getItems = ()=>{
+    useEffect(()=>{
+      let cancelled = false;
+
       fetch(apiUrl+"/todos")
       .then((res)=> res.json())
-      .then((res)=>setTodos(res));
-    }
-    useEffect(()=>{getItems()},[]);
+      .then((res)=>{
+        if (!cancelled) {
+          setTodos(res);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        if (!cancelled) {
+          setError("Unable to load tasks. Please wait and refresh once the server wakes up.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+      return () => {
+        cancelled = true;
+      };
+    },[apiUrl]);
 
 return (
 <div className="container mt-4">
@@ -122,6 +148,7 @@ return (
         <h4>Add Item</h4>
 
         {msg && <p className="text-success">{msg}</p>}
+        {saving && <ServerWakeMessage title="Connecting to server..." />}
 
         <div className="row g-2">
 
@@ -149,8 +176,9 @@ return (
             <button
               className="btn btn-dark w-100"
               onClick={handleSubmit}
+              disabled={saving}
             >
-              Submit
+              {saving ? 'Please wait...' : 'Submit'}
             </button>
           </div>
 
@@ -165,9 +193,11 @@ return (
 
         <h4>Task</h4>
 
+        {loading && <ServerWakeMessage title="Loading tasks..." />}
+
         <ul className="list-group">
 
-          {todos.map((item) => (
+          {!loading && todos.map((item) => (
             <li
               key={item._id}
               className="list-group-item bg-light shadow-sm rounded my-2"
@@ -226,8 +256,9 @@ return (
                     <button
                       className="btn btn-success btn-sm"
                       onClick={handleUpdate}
+                      disabled={saving}
                     >
-                      Update
+                      {saving ? 'Please wait...' : 'Update'}
                     </button>
 
                   )}
