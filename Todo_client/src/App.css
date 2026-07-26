@@ -9,6 +9,10 @@
   margin: 1rem 0;
 }
 
+.todo-header {
+  background: linear-gradient(90deg, #2563eb, #059669);
+}
+
 @media (max-width: 576px) {
   .server-wake-message {
     align-items: flex-start;

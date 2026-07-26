@@ -1,84 +1,46 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();
+
+const authRoutes = require('./routes/authRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const startReminderScheduler = require('./services/reminderService');
+
 const app = express();
-const cors= require('cors');
-app.use(cors());
-app.use(express.json());
-const port=process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 const mongoUri = process.env.MONGO_URI;
 
-mongoose.connect(mongoUri)
-.then(()=>{
-    console.log('db connected successfully');
-})
-.catch((error)=>{console.log(error)});
+app.use(cors({
+  origin: process.env.CLIENT_URL || true,
+  credentials: true
+}));
+app.use(express.json());
 
-const todoSchema = new mongoose.Schema({
-    title: {
-        required:true ,
-        type:String
-    },
-    description: String
- });
+app.use('/auth', authRoutes);
+app.use('/todos', taskRoutes);
 
-const todoModel=mongoose.model('Todo', todoSchema);
-app.post('/todos',async(req,res)=>{
-  const {title,description}=req.body;
-  const newTodo = new todoModel({title, description});
+const startServer = async () => {
   try {
-      await newTodo.save();
-      res.status(201).json(newTodo);
+    if (!mongoUri) {
+      throw new Error('MONGO_URI is missing in .env');
+    }
+
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000
+    });
+    console.log('db connected successfully');
+
+    startReminderScheduler();
+
+    app.listen(port, () => {
+      console.log(`port ${port} is running on the server!`);
+    });
   } catch (error) {
-      console.log(error);
-      res.status(500).json(error);
+    console.log('MongoDB connection failed:', error);
+    console.log('Check your internet/DNS, MongoDB Atlas connection string, and Atlas Network Access IP whitelist.');
+    process.exit(1);
   }
+};
 
-});
-
-app.get('/todos', async (req,res)=>{
-try{
-   const todos = await todoModel.find();
-   res.json(todos);
-}
-catch(error){
-    res.json({error:error.message})
-    console.log(error);
-}
-});
-
-app.put('/todos/:id', async (req,res)=>{
-    try{
-    const {title, description} = req.body;
-    const id=req.params.id;
-    const updateTodo= await todoModel.findByIdAndUpdate(
-        id,
-        {title, description},
-        {new: true}
-    )
-    if(!updateTodo){
-        return res.status(404).json({message:"can't find the id"})
-    }
-    res.json(updateTodo)
-   }
-   catch(err){
-    console.log(err)
-    res.json(err)
-   }
-});
-
-app.delete('/todos/:id',async (req,res)=>{
-    try{
-       const id=req.params.id;
-       await todoModel.findByIdAndDelete(id);
-       res.status(204).end();
-    }
-    catch(err){
-        console.log(err);
-        res.json(err);
-    }
-});
-
-app.listen(port,()=>{
-    console.log(`port ${port} is running on the server!`)
-});
+startServer();
