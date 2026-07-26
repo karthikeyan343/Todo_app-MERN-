@@ -31,6 +31,8 @@ const isValidDate = (value) => {
 const createTask = async (req, res) => {
   try {
     const { title, description, dueDate } = req.body;
+        console.log("Received:", dueDate);
+        console.log("Parsed:", new Date(dueDate));
 
     if (!title || !title.trim()) {
       return res.status(400).json({ message: 'Task title is required' });
