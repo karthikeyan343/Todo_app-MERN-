@@ -1,20 +1,31 @@
 .marquee-container {
-    overflow: hidden;
-    white-space: nowrap;
     width: 100%;
+    overflow: hidden;
     background: #fff3cd;
-    padding: 10px;
+    border: 1px solid #ffe69c;
+    border-radius: 6px;
+    padding: 8px 0;
+    margin: 15px 0;
 }
 
 .marquee-content {
     display: inline-block;
     white-space: nowrap;
-    animation: marquee 40s linear infinite;
+    min-width: 100%;
+    padding-left: 100%;
+    font-size: 15px;
+    font-weight: 500;
+    animation: marquee 30s linear infinite;
+}
+
+.marquee-content:hover {
+    animation-play-state: paused;
+    cursor: pointer;
 }
 
 @keyframes marquee {
     0% {
-        transform: translateX(100%);
+        transform: translateX(0%);
     }
 
     100% {

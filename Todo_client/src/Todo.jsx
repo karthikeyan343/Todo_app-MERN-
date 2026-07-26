@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import ServerWakeMessage from './ServerWakeMessage';
-import "./Todo.css";
+import './Todo.css';
 const formatDateTimeLocal = (value) => {
   if (!value) {
     return '';
@@ -277,18 +277,12 @@ const Todo = ({ apiUrl, user, onLogout }) => {
               </button>
             </div>
           </div>
-<div className="marquee-container">
-  <div className="marquee-content">
-    📢 <strong>Demo Notice:</strong> Email reminders are automatically scheduled
-    approximately <strong>24 hours before</strong> the due date. This application
-    is hosted on <strong>Render's Free Tier</strong>, so the server may become
-    inactive during periods of no traffic. If this happens, reminder emails may
-    be delayed until the server becomes active again.
-  </div>
-</div>
-          
-
           <div className="mt-4">
+          <div className="marquee-container">
+    <div className="marquee-content">
+        📢 <strong>Demo Notice:</strong> Email reminders are automatically scheduled approximately <strong>24 hours before</strong> the due date. This application is hosted on <strong>Render's Free Tier</strong>, so the server may become inactive during periods of no traffic. If this happens, reminder emails may be delayed until the server becomes active again.
+    </div>
+</div>
             <h4>Add Task</h4>
 
             {msg && <p className="text-success">{msg}</p>}
