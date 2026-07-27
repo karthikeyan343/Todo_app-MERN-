@@ -61,14 +61,14 @@ const Todo = ({ apiUrl, user, onLogout }) => {
 
     if (title.trim() !== '' && description.trim() !== '' && dueDate) {
       setSaving(true);
-
+     const dueDateUtc=new Date(dueDate).toISOString();
       fetch(`${apiUrl}/todos`, {
         method: 'POST',
         ...requestOptions,
         body: JSON.stringify({
           title,
           description,
-          dueDate
+          dueDate: dueDateUtc
         })
       })
         .then((res) => {
@@ -118,14 +118,14 @@ const Todo = ({ apiUrl, user, onLogout }) => {
 
     if (editTitle.trim() !== '' && editDescription.trim() !== '' && editDueDate) {
       setSaving(true);
-
+    const editDueDateUtc=new Date(editDueDate).toISOString();
       fetch(`${apiUrl}/todos/${editId}`, {
         method: 'PUT',
         ...requestOptions,
         body: JSON.stringify({
           title: editTitle,
           description: editDescription,
-          dueDate: editDueDate
+          dueDate: editDueDateUtc
         })
       })
         .then((res) => {
